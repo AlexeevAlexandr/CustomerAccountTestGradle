@@ -1,11 +1,16 @@
 plugins {
     id 'java'
+    id 'org.springframework.boot' version '2.2.2.RELEASE'
 }
+
+apply plugin: 'java'
+apply plugin: 'io.spring.dependency-management'
 
 group 'testGradle'
 version '1.0-SNAPSHOT'
 
 sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 repositories {
     mavenCentral()
