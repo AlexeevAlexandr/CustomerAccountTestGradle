@@ -2,49 +2,42 @@ package com.example.controller;
 
 import com.example.entity.CustomerAccount;
 import com.example.service.CustomerAccountService;
-import com.example.validator.Validator;
-import org.springframework.http.MediaType;
+import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
+@AllArgsConstructor
 @RestController
 @RequestMapping(value = "/customerAccount")
 public class CustomerAccountController {
 
     private final CustomerAccountService customerAccountService;
-    private final Validator validator;
 
-    public CustomerAccountController(CustomerAccountService customerAccountService, Validator validator) {
-        this.customerAccountService = customerAccountService;
-        this.validator = validator;
-    }
-
-    @GetMapping(value = "", produces = { MediaType.APPLICATION_JSON_VALUE })
+    @GetMapping
     public List<CustomerAccount> getAll() {
         return customerAccountService.findAll();
     }
 
-    @GetMapping(value = "/{id}", produces = { MediaType.APPLICATION_JSON_VALUE })
-    public CustomerAccount getById(@PathVariable String id) {
-        return customerAccountService.findById(validator.parseLong(id));
+    @GetMapping(value = "/{id}")
+    public CustomerAccount getById(@NotNull(message = "Id can not be empty") @PathVariable long id) {
+        return customerAccountService.findById(id);
     }
 
-    @PostMapping(value = "", produces = { MediaType.APPLICATION_JSON_VALUE })
-    public CustomerAccount create(@RequestBody CustomerAccount customerAccount) {
-        validator.isEmptyCustomerAccount(customerAccount);
+    @PostMapping
+    public CustomerAccount create(@Valid @RequestBody CustomerAccount customerAccount) {
         return customerAccountService.create(customerAccount);
     }
 
-    @PutMapping(value = "", produces = { MediaType.APPLICATION_JSON_VALUE })
-    public CustomerAccount update(@RequestBody CustomerAccount customerAccount) {
-        validator.isNull(customerAccount.getId());
-        validator.isEmptyCustomerAccount(customerAccount);
+    @PutMapping
+    public CustomerAccount update(@Valid @RequestBody CustomerAccount customerAccount) {
         return customerAccountService.update(customerAccount);
     }
 
-    @DeleteMapping(value = "/{id}", produces = { MediaType.APPLICATION_JSON_VALUE })
-    public void delete(@PathVariable String id) {
-        customerAccountService.delete(validator.parseLong(id));
+    @DeleteMapping(value = "/{id}")
+    public void delete(@NotNull(message = "Id can not be empty") @PathVariable long id) {
+        customerAccountService.delete(id);
     }
 }
