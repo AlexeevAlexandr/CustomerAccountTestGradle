@@ -12,7 +12,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -20,15 +19,13 @@ import org.springframework.web.context.WebApplicationContext;
 
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.when;
-import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
-import static javax.servlet.http.HttpServletResponse.SC_OK;
+import static javax.servlet.http.HttpServletResponse.*;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = Main.class)
 @SpringBootTest
-public class CustomerAccountControllerTests {
+public class CustomerAccountControllerTest {
 
     @Autowired
     private CustomerAccountService customerAccountService;
@@ -46,7 +43,6 @@ public class CustomerAccountControllerTests {
     @Test
     public void create() throws Exception {
         JSONObject jsonObject = testHelper.getJsonObjectFromFile("json/entity.json");
-        System.out.println(jsonObject.toJSONString());
         long id =
                 given().contentType(MediaType.APPLICATION_JSON_VALUE).body(jsonObject.toJSONString()).
                         when().post("/customerAccount").
@@ -57,46 +53,57 @@ public class CustomerAccountControllerTests {
 
     @Test
     @SuppressWarnings("unchecked")
-    public void create_With_Empty_Name() throws Exception {
+    public void createWithEmptyName() throws Exception {
         JSONObject jsonObject = testHelper.getJsonObjectFromFile("json/entity.json");
         jsonObject.put("name", "");
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE).body(jsonObject.toString()).
                 when().post("/customerAccount").
-                then().statusCode(SC_NOT_FOUND);
+                then().statusCode(SC_BAD_REQUEST);
     }
 
     @Test
     @SuppressWarnings("unchecked")
-    public void create_With_Empty_Email() throws Exception {
+    public void createWithEmptyEmail() throws Exception {
         JSONObject jsonObject = testHelper.getJsonObjectFromFile("json/entity.json");
         jsonObject.put("email", "");
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE).body(jsonObject.toString()).
                 when().post("/customerAccount").
-                then().statusCode(SC_NOT_FOUND);
+                then().statusCode(SC_BAD_REQUEST);
     }
 
     @Test
     @SuppressWarnings("unchecked")
-    public void create_With_Null_Name() throws Exception {
+    public void createWithNullName() throws Exception {
         JSONObject jsonObject = testHelper.getJsonObjectFromFile("json/entity.json");
         jsonObject.put("name", nullValue());
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE).body(jsonObject.toString()).
                 when().post("/customerAccount").
-                then().statusCode(SC_NOT_FOUND);
+                then().statusCode(SC_BAD_REQUEST);
     }
 
     @Test
     @SuppressWarnings("unchecked")
-    public void create_With_Null_Email() throws Exception {
+    public void createWithNullEmail() throws Exception {
         JSONObject jsonObject = testHelper.getJsonObjectFromFile("json/entity.json");
         jsonObject.put("email", nullValue());
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE).body(jsonObject.toString()).
                 when().post("/customerAccount").
-                then().statusCode(SC_NOT_FOUND);
+                then().statusCode(SC_BAD_REQUEST);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void createWithInvalidEmail() throws Exception {
+        JSONObject jsonObject = testHelper.getJsonObjectFromFile("json/entity.json");
+        jsonObject.put("email", "invalidEmail");
+
+        given().contentType(MediaType.APPLICATION_JSON_VALUE).body(jsonObject.toString()).
+                when().post("/customerAccount").
+                then().statusCode(SC_BAD_REQUEST);
     }
 
     @Test
@@ -124,7 +131,7 @@ public class CustomerAccountControllerTests {
     }
 
     @Test
-    public void getById_NotFound() {
+    public void getByIdNotFound() {
         when().get("/customerAccount/0123456789").
                 then().statusCode(SC_NOT_FOUND);
     }
@@ -159,7 +166,7 @@ public class CustomerAccountControllerTests {
     }
 
     @Test
-    public void update_With_Wrong_Id() {
+    public void updateWithWrongId() {
         // create
         CustomerAccount customerAccount = new CustomerAccount("Test Name", "testEmail@gmail.com");
         customerAccount.setId(123456789L);
@@ -174,7 +181,7 @@ public class CustomerAccountControllerTests {
     }
 
     @Test
-    public void update_With_Null_Id() throws Exception {
+    public void updateWithNullId() throws Exception {
         JSONObject jsonObject = testHelper.getJsonObjectFromFile("json/entity.json");
 
         given().contentType(MediaType.APPLICATION_JSON_VALUE).
@@ -186,7 +193,7 @@ public class CustomerAccountControllerTests {
     }
 
     @Test
-    public void update_With_Name_Null() {
+    public void updateWithNameNull() {
         // create
         CustomerAccount customerAccount = customerAccountService.create(new CustomerAccount("Test Name", "testEmail@gmail.com"));
         long id = customerAccount.getId();
@@ -200,7 +207,7 @@ public class CustomerAccountControllerTests {
                     body(customerAccount).
                     when().
                     put("/customerAccount").
-                    then().statusCode(SC_NOT_FOUND);
+                    then().statusCode(SC_BAD_REQUEST);
         } finally {
             // delete
             if (customerAccountService.exists(id)) {
@@ -210,7 +217,7 @@ public class CustomerAccountControllerTests {
     }
 
     @Test
-    public void update_With_Email_Null() {
+    public void updateWithEmailNull() {
         // create
         CustomerAccount customerAccount = customerAccountService.create(new CustomerAccount("Test Name", "testEmail@gmail.com"));
         long id = customerAccount.getId();
@@ -223,7 +230,7 @@ public class CustomerAccountControllerTests {
                     body(customerAccount).
                     when().
                     put("/customerAccount").
-                    then().statusCode(SC_NOT_FOUND);
+                    then().statusCode(SC_BAD_REQUEST);
         } finally {
             // delete
             if (customerAccountService.exists(id)) {
@@ -233,7 +240,7 @@ public class CustomerAccountControllerTests {
     }
 
     @Test
-    public void update_With_Empty_Name() {
+    public void updateWithEmptyName() {
         // create
         CustomerAccount customerAccount = customerAccountService.create(new CustomerAccount("Test Name", "testEmail@gmail.com"));
         long id = customerAccount.getId();
@@ -247,7 +254,7 @@ public class CustomerAccountControllerTests {
                     body(customerAccount).
                     when().
                     put("/customerAccount").
-                    then().statusCode(SC_NOT_FOUND);
+                    then().statusCode(SC_BAD_REQUEST);
         } finally {
             // delete
             if (customerAccountService.exists(id)) {
@@ -257,7 +264,7 @@ public class CustomerAccountControllerTests {
     }
 
     @Test
-    public void update_With_Empty_Email() {
+    public void updateWithEmptyEmail() {
         // create
         CustomerAccount customerAccount = customerAccountService.create(new CustomerAccount("Test Name", "testEmail@gmail.com"));
         long id = customerAccount.getId();
@@ -270,7 +277,30 @@ public class CustomerAccountControllerTests {
                     body(customerAccount).
                     when().
                     put("/customerAccount").
-                    then().statusCode(SC_NOT_FOUND);
+                    then().statusCode(SC_BAD_REQUEST);
+        } finally {
+            // delete
+            if (customerAccountService.exists(id)) {
+                customerAccountService.delete(id);
+            }
+        }
+    }
+
+    @Test
+    public void updateWithInvalidEmail() {
+        // create
+        CustomerAccount customerAccount = customerAccountService.create(new CustomerAccount("Test Name", "invalidEmail"));
+        long id = customerAccount.getId();
+
+        try {
+            // change
+            customerAccount.setEmail("");
+
+            given().contentType(MediaType.APPLICATION_JSON_VALUE).
+                    body(customerAccount).
+                    when().
+                    put("/customerAccount").
+                    then().statusCode(SC_BAD_REQUEST);
         } finally {
             // delete
             if (customerAccountService.exists(id)) {
@@ -299,7 +329,7 @@ public class CustomerAccountControllerTests {
     }
 
     @Test
-    public void delete_Id_NotFound() {
+    public void deleteIdNotFound() {
         given().contentType(MediaType.APPLICATION_JSON_VALUE).
                 when().
                 delete("/customerAccount/0123456789").
@@ -308,11 +338,11 @@ public class CustomerAccountControllerTests {
     }
 
     @Test
-    public void delete_With_Null_Id() {
+    public void deleteWithNullId() {
         given().contentType(MediaType.APPLICATION_JSON_VALUE).
                 when().
                 delete("/customerAccount/" + nullValue()).
                 then().
-                statusCode(SC_NOT_FOUND);
+                statusCode(SC_BAD_REQUEST);
     }
 }
