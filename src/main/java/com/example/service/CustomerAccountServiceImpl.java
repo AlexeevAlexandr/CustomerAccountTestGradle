@@ -3,21 +3,19 @@ package com.example.service;
 import com.example.entity.CustomerAccount;
 import com.example.exception.CustomerAccountException;
 import com.example.repository.CustomerAccountRepository;
-import lombok.extern.java.Log;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
 
+@AllArgsConstructor
 @Service
-@Log
+@Slf4j
 public class CustomerAccountServiceImpl implements CustomerAccountService{
 
     private final CustomerAccountRepository customerAccountRepository;
-
-    public CustomerAccountServiceImpl(CustomerAccountRepository customerAccountRepository) {
-        this.customerAccountRepository = customerAccountRepository;
-    }
 
     @Override
     public CustomerAccount create(CustomerAccount customerAccount) {
@@ -27,7 +25,7 @@ public class CustomerAccountServiceImpl implements CustomerAccountService{
             log.info("attempt to create CustomerAccount - success");
             return customerAccount;
         } catch (Exception e) {
-            log.warning("attempt to create CustomerAccount - failed\n" + e.getMessage());
+            log.debug("attempt to create CustomerAccount - failed\n" + e.getMessage());
             return null;
         }
     }
@@ -40,7 +38,7 @@ public class CustomerAccountServiceImpl implements CustomerAccountService{
             log.info("attempt to get CustomerAccount list - success");
             return customerAccounts;
         } catch (Exception e) {
-            log.warning("attempt to get CustomerAccount list - failed\n" + e.getMessage());
+            log.debug("attempt to get CustomerAccount list - failed\n" + e.getMessage());
             return Collections.emptyList();
         }
     }
@@ -56,13 +54,16 @@ public class CustomerAccountServiceImpl implements CustomerAccountService{
             log.info("attempt to get CustomerAccount by id - success");
             return customerAccount;
         } catch (Exception e) {
-            log.warning("attempt to get CustomerAccount by id - failed\n" + e.getMessage());
+            log.debug("attempt to get CustomerAccount by id - failed\n" + e.getMessage());
             return null;
         }
     }
 
     @Override
     public CustomerAccount update(CustomerAccount customerAccount) {
+        if (customerAccount.getId() == null) {
+            throw new CustomerAccountException("Id can not be null");
+        }
         if (!exists(customerAccount.getId())) {
             throw new CustomerAccountException("Can not update, id not exist");
         }
@@ -72,7 +73,7 @@ public class CustomerAccountServiceImpl implements CustomerAccountService{
             log.info("attempt to update CustomerAccount - success");
             return customerAccount;
         } catch (Exception e) {
-            log.warning("attempt to update CustomerAccount - failed\n" + e.getMessage());
+            log.debug("attempt to update CustomerAccount - failed\n" + e.getMessage());
             return null;
         }
     }
@@ -87,7 +88,7 @@ public class CustomerAccountServiceImpl implements CustomerAccountService{
             customerAccountRepository.deleteById(id);
             log.info("attempt to delete CustomerAccount - success");
         } catch (Exception e) {
-            log.warning("attempt to delete CustomerAccount - failed\n" + e.getMessage());
+            log.debug("attempt to delete CustomerAccount - failed\n" + e.getMessage());
         }
     }
 
@@ -99,7 +100,7 @@ public class CustomerAccountServiceImpl implements CustomerAccountService{
             log.info("check if exists CustomerAccount - success");
             return flag;
         } catch (Exception e) {
-            log.warning("check if exists CustomerAccount - failed\n" + e.getMessage());
+            log.debug("check if exists CustomerAccount - failed\n" + e.getMessage());
             return false;
         }
     }

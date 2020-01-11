@@ -1,4 +1,4 @@
-#Test app<br/>
+#Home Task<br/>
 ###1. Technologies
 * Java 1.8
 * Spring Boot 2.2.2.RELEASE
@@ -14,8 +14,10 @@ Preparation before launching:
 [Redis]: https://redis.io/topics/quickstart
 
 To build and run a project:
-1. command to build app: _gradle build_
-2. command to run app: _java -jar build/libs/testGradle-1.0-SNAPSHOT.jar_
+1. command to build app:<br/>
+_gradle build_
+2. command to run app:<br/>
+_java -jar build/libs/testGradle-1.0-SNAPSHOT.jar_
 
 At now, the project should be launched.
 
